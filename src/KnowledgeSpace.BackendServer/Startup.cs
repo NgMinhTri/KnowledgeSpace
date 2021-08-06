@@ -1,6 +1,8 @@
 using System;
+using FluentValidation.AspNetCore;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.ViewModel.Systems;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -55,6 +57,9 @@ namespace KnowledgeSpace.BackendServer
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "KnowledgeSpace API", Version = "v1" });
             });
+
+            services.AddMvc()
+                    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RoleVmValidator>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
