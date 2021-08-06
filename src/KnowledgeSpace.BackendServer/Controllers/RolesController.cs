@@ -53,7 +53,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         //URL: GET: http://localhost:5001/api/roles/?filter={filter}&pageIndex=1&pageSize=10
-        [HttpGet]
+        [HttpGet("filter")]
         public async Task<IActionResult> GetRoles(string filter, int pageIndex, int pageSize)
         {
             var query = _roleManager.Roles;
@@ -93,17 +93,18 @@ namespace KnowledgeSpace.BackendServer.Controllers
             return Ok(roleVm);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutRole(string id, [FromBody]RoleVm roleVm)
         {
             if (id != roleVm.Id)
                 return BadRequest();
+
             var role = await _roleManager.FindByIdAsync(id);
             if(role == null)
                 return NotFound();
 
-            role.Id = roleVm.Name;
             role.Name = roleVm.Name;
+            role.Name = roleVm.Name.ToUpper();
 
             var result = await _roleManager.UpdateAsync(role);
             if (result.Succeeded)
