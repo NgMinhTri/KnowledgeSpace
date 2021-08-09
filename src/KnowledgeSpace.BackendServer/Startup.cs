@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using FluentValidation.AspNetCore;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
@@ -48,7 +49,8 @@ namespace KnowledgeSpace.BackendServer
            .AddInMemoryApiResources(Config.Apis)
            .AddInMemoryClients(Config.Clients)
            .AddInMemoryIdentityResources(Config.Ids)
-           .AddAspNetIdentity<User>();
+           .AddAspNetIdentity<User>()
+           .AddDeveloperSigningCredential();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -67,7 +69,18 @@ namespace KnowledgeSpace.BackendServer
 
             services.AddControllers();
 
-            services.AddRazorPages();
+             services.AddRazorPages(options =>
+            {
+                options.Conventions.AddAreaFolderRouteModelConvention("Identity", "/Account/", model =>
+                {
+                    foreach (var selector in model.Selectors)
+                    {
+                        var attributeRouteModel = selector.AttributeRouteModel;
+                        attributeRouteModel.Order = -1;
+                        attributeRouteModel.Template = attributeRouteModel.Template.Remove(0, "Identity".Length);
+                    }
+                });
+            });
 
             services.AddTransient<DbInitializer>();
 
@@ -76,10 +89,48 @@ namespace KnowledgeSpace.BackendServer
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "KnowledgeSpace API", Version = "v1" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.OAuth2,
+                    Flows = new OpenApiOAuthFlows
+                    {
+                        Implicit = new OpenApiOAuthFlow
+                        {
+                            AuthorizationUrl = new Uri("https://localhost:5000/connect/authorize"),
+                            Scopes = new Dictionary<string, string> { { "api.knowledgespace", "KnowledgeSpace API" } }
+                        },
+                    },
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                        },
+                        new List<string>{ "api.knowledgespace" }
+                    }
+                });
             });
 
             services.AddControllersWithViews()
                     .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<RoleVmValidator>());
+
+            services.AddAuthentication()
+               .AddLocalApi("Bearer", option =>
+               {
+                   option.ExpectedScope = "api.knowledgespace";
+               });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Bearer", policy =>
+                {
+                    policy.AddAuthenticationSchemes("Bearer");
+                    policy.RequireAuthenticatedUser();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -112,6 +163,7 @@ namespace KnowledgeSpace.BackendServer
 
             app.UseSwaggerUI(c =>
             {
+                c.OAuthClientId("swagger");
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "KnowledgeSpace API V1");
             });
         }
