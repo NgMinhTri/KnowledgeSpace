@@ -141,6 +141,22 @@ namespace KnowledgeSpace.BackendServer.Controllers
             return BadRequest(result.Errors);
         }
 
+        [HttpPut("{id}/change-password")]
+        public async Task<IActionResult> PutPasswordUser(string id, [FromBody] PutPasswordUserVm request)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+
+            var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.Errors);
+        }
+
         [HttpDelete("id")]
         public async Task<IActionResult> DeleteUser(string id)
         {
