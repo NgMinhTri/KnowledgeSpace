@@ -86,6 +86,8 @@ namespace KnowledgeSpace.BackendServer
 
             services.AddTransient<IEmailSender, EmailSenderService>();
 
+            services.AddTransient<ISequenceService, SequenceService>();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "KnowledgeSpace API", Version = "v1" });

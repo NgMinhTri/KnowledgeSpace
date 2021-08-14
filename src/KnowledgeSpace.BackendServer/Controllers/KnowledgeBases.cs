@@ -1,5 +1,6 @@
 ﻿using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.BackendServer.Services;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Contents;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,14 @@ namespace KnowledgeSpace.BackendServer.Controllers
     public class KnowledgeBases : BaseController
     {
         private readonly ApplicationDbContext _context;
-        public KnowledgeBases(ApplicationDbContext context)
+        private readonly ISequenceService _sequenceService;
+        public KnowledgeBases(ApplicationDbContext context, ISequenceService sequenceService)
         {
             _context = context;
+            _sequenceService = sequenceService;
         }
 
+        #region KnowledgeBase
         [HttpGet]
         public async Task<IActionResult> GetKnowledgeBases()
         {
@@ -138,6 +142,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
                 Labels = request.Labels,
             };
+            knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
             _context.KnowledgeBases.Add(knowledgeBase);
             var result = await _context.SaveChangesAsync();
             if (result > 0)
@@ -242,5 +247,139 @@ namespace KnowledgeSpace.BackendServer.Controllers
             }
             return BadRequest();
         }
+        #endregion
+
+        #region Comment
+
+        [HttpGet("{knowledgeBaseId}/comments/filter")]
+        public async Task<IActionResult> GetCommentsPaging(int knowledgeBaseId, string filter, int pageIndex, int pageSize)
+        {
+            var query = _context.Comments.Where(x => x.KnowledgeBaseId == knowledgeBaseId).AsQueryable();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                query = query.Where(x => x.Content.Contains(filter));
+            }
+            var totalRecords = await query.CountAsync();
+            var items = await query.Skip((pageIndex - 1 * pageSize))
+                .Take(pageSize)
+                .Select(c => new CommentVm()
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    CreateDate = c.CreateDate,
+                    KnowledgeBaseId = c.KnowledgeBaseId,
+                    LastModifiedDate = c.LastModifiedDate,
+                    OwnwerUserId = c.OwnwerUserId
+                })
+                .ToListAsync();
+
+            var pagination = new Pagination<CommentVm>
+            {
+                Items = items,
+                TotalRecords = totalRecords,
+            };
+            return Ok(pagination);
+        }
+
+        [HttpGet("{knowledgeBaseId}/comments/{commentId}")]
+        public async Task<IActionResult> GetCommentDetail(int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null)
+                return NotFound();
+
+            var commentVm = new CommentVm()
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                CreateDate = comment.CreateDate,
+                KnowledgeBaseId = comment.KnowledgeBaseId,
+                LastModifiedDate = comment.LastModifiedDate,
+                OwnwerUserId = comment.OwnwerUserId
+            };
+            return Ok(commentVm);
+        }
+
+        [HttpPost("{knowledgeBaseId}/comments")]
+        public async Task<IActionResult> PostComment(int knowledgeBaseId, [FromBody] PostCommentVm request)
+        {
+            var comment = new Comment()
+            {
+                Content = request.Content,
+                KnowledgeBaseId = request.KnowledgeBaseId,
+                OwnwerUserId = string.Empty/*TODO: GET USER FROM CLAIM*/,
+            };
+            _context.Comments.Add(comment);
+
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+            if (knowledgeBase != null)
+                return BadRequest();
+            knowledgeBase.NumberOfComments = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) + 1;
+            _context.KnowledgeBases.Update(knowledgeBase);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return CreatedAtAction(nameof(GetCommentDetail), new { id = knowledgeBaseId, commentId = comment.Id }, request);
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("{knowledgeBaseId}/comments/{commentId}")]
+        public async Task<IActionResult> PutComment(int commentId, [FromBody] PostCommentVm request)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null)
+                return NotFound();
+            if (comment.OwnwerUserId != User.Identity.Name)
+                return Forbid();
+
+            comment.Content = request.Content;
+            _context.Comments.Update(comment);
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return NoContent();
+            }
+            return BadRequest();
+        }
+
+        [HttpDelete("{knowledgeBaseId}/comments/{commentId}")]
+        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, int commentId)
+        {
+            var comment = await _context.Comments.FindAsync(commentId);
+            if (comment == null)
+                return NotFound();
+
+            _context.Comments.Remove(comment);
+
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+            if (knowledgeBase != null)
+                return BadRequest();
+            knowledgeBase.NumberOfComments = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) - 1;
+            _context.KnowledgeBases.Update(knowledgeBase);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                var commentVm = new CommentVm()
+                {
+                    Id = comment.Id,
+                    Content = comment.Content,
+                    CreateDate = comment.CreateDate,
+                    KnowledgeBaseId = comment.KnowledgeBaseId,
+                    LastModifiedDate = comment.LastModifiedDate,
+                    OwnwerUserId = comment.OwnwerUserId
+                };
+                return Ok(commentVm);
+            }
+            return BadRequest();
+        }
+        #endregion
     }
 }
