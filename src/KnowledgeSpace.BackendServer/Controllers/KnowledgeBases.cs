@@ -1,5 +1,6 @@
 ﻿using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.BackendServer.Services;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Contents;
@@ -144,6 +145,13 @@ namespace KnowledgeSpace.BackendServer.Controllers
             };
             knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
             _context.KnowledgeBases.Add(knowledgeBase);
+
+            //Process label
+            if (!string.IsNullOrEmpty(request.Labels))
+            {
+                await ProcessLabel(request, knowledgeBase);
+            }
+
             var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
@@ -163,28 +171,24 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 return NotFound();
 
             knowledgeBase.CategoryId = request.CategoryId;
-
             knowledgeBase.Title = request.Title;
-
             knowledgeBase.SeoAlias = request.SeoAlias;
-
             knowledgeBase.Description = request.Description;
-
             knowledgeBase.Environment = request.Environment;
-
             knowledgeBase.Problem = request.Problem;
-
             knowledgeBase.StepToReproduce = request.StepToReproduce;
-
             knowledgeBase.ErrorMessage = request.ErrorMessage;
-
             knowledgeBase.Workaround = request.Workaround;
-
             knowledgeBase.Note = request.Note;
-
             knowledgeBase.Labels = request.Labels;
 
             _context.KnowledgeBases.Update(knowledgeBase);
+
+            if (!string.IsNullOrEmpty(request.Labels))
+            {
+                await ProcessLabel(request, knowledgeBase);
+            }
+
             var result = await _context.SaveChangesAsync();
 
             if (result > 0)
@@ -379,6 +383,231 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 return Ok(commentVm);
             }
             return BadRequest();
+        }
+        #endregion
+
+        #region Vote
+        [HttpGet("{knowledgeBaseId}/votes")]
+        public async Task<IActionResult> GetVotes(int knowledgeBaseId)
+        {
+            var vote = await _context.Votes
+                .Where(v => v.KnowledgeBaseId == knowledgeBaseId)
+                .Select(v => new VoteVm()
+                {
+                    KnowledgeBaseId = v.KnowledgeBaseId,
+                    UserId = v.UserId,
+                    CreateDate =v.CreateDate,
+                    LastModifiedDate = v.LastModifiedDate
+                }).ToListAsync();
+            return Ok(vote);
+        }
+
+        [HttpPost("{knowledgeBaseId}/votes")]
+        public async Task<IActionResult> PostVote(int knowledgeBaseId, [FromBody] PostVoteVm request)
+        {
+            var vote = await _context.Votes.FindAsync(knowledgeBaseId, request.UserId);
+            if (vote != null)
+                return BadRequest("This user has been voted for this KB");
+
+            vote = new Vote()
+            {
+                KnowledgeBaseId = knowledgeBaseId,
+                UserId = request.UserId
+            };
+            _context.Votes.Add(vote);
+
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+            if (knowledgeBase != null)
+                return BadRequest();
+            knowledgeBase.NumberOfVotes = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) + 1;
+            _context.KnowledgeBases.Update(knowledgeBase);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return NoContent();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+
+        [HttpDelete("{knowledgeBaseId}/votes/{userId}")]
+        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, string userId)
+        {
+            var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
+            if (vote == null)
+                return NotFound();
+
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+            if (knowledgeBase != null)
+                return BadRequest();
+            knowledgeBase.NumberOfVotes = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) - 1;
+            _context.KnowledgeBases.Update(knowledgeBase);
+
+            _context.Votes.Remove(vote);
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+        #endregion
+
+        #region Reports
+        [HttpGet("{knowledgeBaseId}/reports/filter")]
+        public async Task<IActionResult> GetReportsPaging(int knowledgeBaseId, string filter, int pageIndex, int pageSize)
+        {
+            var query = _context.Reports.Where(x => x.KnowledgeBaseId == knowledgeBaseId).AsQueryable();
+            if (!string.IsNullOrEmpty(filter))
+            {
+                query = query.Where(x => x.Content.Contains(filter));
+            }
+            var totalRecords = await query.CountAsync();
+            var items = await query.Skip((pageIndex - 1 * pageSize))
+                .Take(pageSize)
+                .Select(c => new ReportVm()
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    CreateDate = c.CreateDate,
+                    KnowledgeBaseId = c.KnowledgeBaseId,
+                    LastModifiedDate = c.LastModifiedDate,
+                    IsProcessed = false,
+                    ReportUserId = c.ReportUserId
+                })
+                .ToListAsync();
+
+            var pagination = new Pagination<ReportVm>
+            {
+                Items = items,
+                TotalRecords = totalRecords,
+            };
+            return Ok(pagination);
+        }
+
+        [HttpGet("{knowledgeBaseId}/reports/{reportId}")]
+        public async Task<IActionResult> GetReportDetail(int knowledgeBaseId, int reportId)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+            if (report == null)
+                return NotFound();
+
+            var reportVm = new ReportVm()
+            {
+                Id = report.Id,
+                Content = report.Content,
+                CreateDate = report.CreateDate,
+                KnowledgeBaseId = report.KnowledgeBaseId,
+                LastModifiedDate = report.LastModifiedDate,
+                IsProcessed = report.IsProcessed,
+                ReportUserId = report.ReportUserId
+            };
+
+            return Ok(reportVm);
+        }
+
+        [HttpPost("{knowledgeBaseId}/reports")]
+        public async Task<IActionResult> PostReport(int knowledgeBaseId, [FromBody] PostReportVm request)
+        {
+            var report = new Report()
+            {
+                Content = request.Content,
+                KnowledgeBaseId = knowledgeBaseId,
+                ReportUserId = request.ReportUserId,
+                IsProcessed = false
+            };
+            _context.Reports.Add(report);
+
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+            if (knowledgeBase != null)
+                return BadRequest();
+            knowledgeBase.NumberOfComments = knowledgeBase.NumberOfReports.GetValueOrDefault(0) + 1;
+            _context.KnowledgeBases.Update(knowledgeBase);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut("{knowledgeBaseId}/reports/{reportId}")]
+        public async Task<IActionResult> PutReport(int reportId, [FromBody] PostReportVm request)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+            if (report == null)
+                return NotFound();
+            if (report.ReportUserId != User.Identity.Name)
+                return Forbid();
+
+            report.Content = request.Content;
+            _context.Reports.Update(report);
+
+            var result = await _context.SaveChangesAsync();
+
+            if (result > 0)
+            {
+                return NoContent();
+            }
+            return BadRequest();
+        }
+
+        [HttpDelete("{knowledgeBaseId}/reports/{reportId}")]
+        public async Task<IActionResult> DeleteReport(int knowledgeBaseId, int reportId)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+            if (report == null)
+                return NotFound();
+
+            _context.Reports.Remove(report);
+
+            var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
+            if (knowledgeBase != null)
+                return BadRequest();
+            knowledgeBase.NumberOfComments = knowledgeBase.NumberOfReports.GetValueOrDefault(0) - 1;
+            _context.KnowledgeBases.Update(knowledgeBase);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+        #endregion  Reports
+
+        #region Label
+        private async Task ProcessLabel(PostKnowledgeBaseVm request, KnowledgeBase knowledgeBase)
+        {
+            string[] labels = request.Labels.Split(',');
+            foreach (var labelText in labels)
+            {
+                var labelId = TextHelper.ToUnsignString(labelText);
+                var existingLabel = await _context.Labels.FindAsync(labelId);
+                if (existingLabel == null)
+                {
+                    var labelEntity = new Label()
+                    {
+                        Id = labelId,
+                        Name = labelText
+                    };
+                    _context.Labels.Add(labelEntity);
+                }
+                var labelInKnowledgeBase = new LabelInKnowledgeBase()
+                {
+                    KnowledgeBaseId = knowledgeBase.Id,
+                    LabelId = labelId
+                };
+                _context.LabelInKnowledgeBases.Add(labelInKnowledgeBase);
+            }
         }
         #endregion
     }
