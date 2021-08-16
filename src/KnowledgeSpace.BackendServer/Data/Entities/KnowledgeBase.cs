@@ -7,9 +7,9 @@ namespace KnowledgeSpace.BackendServer.Data.Entities
 {
     [Table("KnowledgeBases")]
     public class KnowledgeBase : IDateTracking
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    {[Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        
         public int Id { get; set; }
 
         [Required]
