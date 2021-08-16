@@ -4,9 +4,13 @@ using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.BackendServer.Services;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Contents;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace KnowledgeSpace.BackendServer.Controllers
@@ -15,10 +19,12 @@ namespace KnowledgeSpace.BackendServer.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ISequenceService _sequenceService;
-        public KnowledgeBases(ApplicationDbContext context, ISequenceService sequenceService)
+        private readonly IStorageService _storageService;
+        public KnowledgeBases(ApplicationDbContext context, ISequenceService sequenceService, IStorageService storageService)
         {
             _context = context;
             _sequenceService = sequenceService;
+            _storageService = storageService;
         }
 
         #region KnowledgeBase
@@ -117,35 +123,34 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> PostKnowledgeBase([FromBody] PostKnowledgeBaseVm request)
+        public async Task<IActionResult> PostKnowledgeBase([FromForm] PostKnowledgeBaseVm request)
         {
             var knowledgeBase = new KnowledgeBase()
             {
                 CategoryId = request.CategoryId,
-
                 Title = request.Title,
-
                 SeoAlias = request.SeoAlias,
-
                 Description = request.Description,
-
                 Environment = request.Environment,
-
                 Problem = request.Problem,
-
                 StepToReproduce = request.StepToReproduce,
-
                 ErrorMessage = request.ErrorMessage,
-
                 Workaround = request.Workaround,
-
                 Note = request.Note,
-
                 Labels = request.Labels,
             };
             knowledgeBase.Id = await _sequenceService.GetKnowledgeBaseNewId();
             _context.KnowledgeBases.Add(knowledgeBase);
 
+            //Process attachment
+            if (request.Attachments != null && request.Attachments.Count > 0)
+            {
+                foreach (var attachment in request.Attachments)
+                {
+                    var attachmentEntity = await SaveFile(knowledgeBase.Id, attachment);
+                    _context.Attachments.Add(attachmentEntity);
+                }
+            }
             //Process label
             if (!string.IsNullOrEmpty(request.Labels))
             {
@@ -608,6 +613,61 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 };
                 _context.LabelInKnowledgeBases.Add(labelInKnowledgeBase);
             }
+        }
+        #endregion
+
+        #region Attachment
+        [HttpGet("{knowledgeBaseId}/attachments")]
+        public async Task<IActionResult> GetAttachment(int knowledgeBaseId)
+        {
+            var query = await _context.Attachments
+                .Where(x => x.KnowledgeBaseId == knowledgeBaseId)
+                .Select(c => new AttachmentVm()
+                {
+                    Id = c.Id,
+                    LastModifiedDate = c.LastModifiedDate,
+                    CreateDate = c.CreateDate,
+                    FileName = c.FileName,
+                    FilePath = c.FilePath,
+                    FileSize = c.FileSize,
+                    FileType = c.FileType,
+                    KnowledgeBaseId = c.KnowledgeBaseId
+                }).ToListAsync();
+
+            return Ok(query);
+        }
+
+        [HttpDelete("{knowledgeBaseId}/attachments/{attachmentId}")]
+        public async Task<IActionResult> DeleteAttachment(int attachmentId)
+        {
+            var attachment = await _context.Attachments.FindAsync(attachmentId);
+            if (attachment == null)
+                return NotFound();
+
+            _context.Attachments.Remove(attachment);
+
+            var result = await _context.SaveChangesAsync();
+            if (result > 0)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        private async Task<Attachment> SaveFile(int knowledegeBaseId, IFormFile file)
+        {
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            var attachmentEntity = new Attachment()
+            {
+                FileName = fileName,
+                FilePath = _storageService.GetFileUrl(fileName),
+                FileSize = file.Length,
+                FileType = Path.GetExtension(fileName),
+                KnowledgeBaseId = knowledegeBaseId,
+            };
+            return attachmentEntity;
         }
         #endregion
     }

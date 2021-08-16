@@ -28,9 +28,7 @@ namespace KnowledgeSpace.BackendServer.Data.Entities
         [Required]
         public long FileSize { get; set; }
 
-        public int? KnowledgeBaseId { get; set; }
-
-        public int? CommentId { get; set; }
+        public int KnowledgeBaseId { get; set; }
 
         [Required]
         [MaxLength(10)]
