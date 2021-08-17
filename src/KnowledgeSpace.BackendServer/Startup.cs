@@ -50,6 +50,7 @@ namespace KnowledgeSpace.BackendServer
            .AddInMemoryClients(Config.Clients)
            .AddInMemoryIdentityResources(Config.Ids)
            .AddAspNetIdentity<User>()
+           .AddProfileService<IdentityProfileService>()
            .AddDeveloperSigningCredential();
 
             services.Configure<IdentityOptions>(options =>
@@ -87,6 +88,7 @@ namespace KnowledgeSpace.BackendServer
             services.AddTransient<IEmailSender, EmailSenderService>();
 
             services.AddTransient<ISequenceService, SequenceService>();
+            services.AddTransient<IStorageService, FileStorageService>();
 
             services.AddSwaggerGen(c =>
             {
