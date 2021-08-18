@@ -2,6 +2,7 @@
 using KnowledgeSpace.BackendServer.Constants;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Systems;
 using Microsoft.AspNetCore.Identity;
@@ -52,7 +53,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
             var userVm = new GetUserVm()
             {
                 Id = user.Id,
@@ -104,6 +105,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
         [HttpPost]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.CREATE)]
+        [ApiValidationFilter]
         public async Task<IActionResult> PostUser(PostUserVm userVm)
         {
             var user = new User()
@@ -124,7 +126,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             }
             else
             {
-                return BadRequest(result.Errors);
+                return BadRequest(new ApiBadRequestResponse(result));
             }
         }
 
@@ -154,7 +156,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
 
             var result = await _userManager.ChangePasswordAsync(user, request.CurrentPassword, request.NewPassword);
 
@@ -162,7 +164,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             {
                 return NoContent();
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpDelete("id")]
@@ -171,7 +173,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
-                return NotFound();
+                return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {id}"));
+
             var result = await _userManager.DeleteAsync(user);
             if (result.Succeeded)
             {
@@ -187,7 +190,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 };
                 return Ok(userVm);
             }
-            return BadRequest(result.Errors);
+            return BadRequest(new ApiBadRequestResponse(result));
         }
 
         [HttpGet("{userId}/menu")]
