@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 import { AccessDeniedComponent } from './access-denied.component';
 
 const routes: Routes = [
     {
-        path: '',
-        component: AccessDeniedComponent
+        path: '', component: AccessDeniedComponent
     }
 ];
 
@@ -13,4 +12,5 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class AccessDeniedRoutingModule {}
+export class AccessDeniedRoutingModule {
+}

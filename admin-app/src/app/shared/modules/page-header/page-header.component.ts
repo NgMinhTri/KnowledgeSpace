@@ -1,4 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-page-header',
@@ -8,7 +9,6 @@ import { Component, Input, OnInit } from '@angular/core';
 export class PageHeaderComponent implements OnInit {
     @Input() heading: string;
     @Input() icon: string;
-
     constructor() {}
 
     ngOnInit() {}
