@@ -42,7 +42,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 Name = functionVm.Name,
                 ParentId = functionVm.ParentId,
                 SortOrder = functionVm.SortOrder,
-                Url = functionVm.Url
+                Url = functionVm.Url,
+                Icon = functionVm.Icon
             };
             _context.Functions.Add(function);
             var result = await _context.SaveChangesAsync();
@@ -71,7 +72,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 Name = f.Name,
                 Url = f.Url,
                 SortOrder = f.SortOrder,
-                ParentId = f.ParentId
+                ParentId = f.ParentId,
+                Icon = f.Icon
             }).ToListAsync();
 
             return Ok(functionvms);
@@ -97,7 +99,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                     Name = u.Name,
                     Url = u.Url,
                     SortOrder = u.SortOrder,
-                    ParentId = u.ParentId
+                    ParentId = u.ParentId,
+                    Icon = u.Icon
                 })
                 .ToListAsync();
 
@@ -123,7 +126,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 Name = function.Name,
                 Url = function.Url,
                 SortOrder = function.SortOrder,
-                ParentId = function.ParentId
+                ParentId = function.ParentId,
+                Icon = function.Icon
             };
             return Ok(functionVm);
         }
@@ -141,6 +145,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             function.ParentId = request.ParentId;
             function.SortOrder = request.SortOrder;
             function.Url = request.Url;
+            function.Icon = request.Icon;
 
             _context.Functions.Update(function);
             var result = await _context.SaveChangesAsync();
@@ -170,7 +175,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                     Name = function.Name,
                     Url = function.Url,
                     SortOrder = function.SortOrder,
-                    ParentId = function.ParentId
+                    ParentId = function.ParentId,
+                    Icon = function.Icon
                 };
                 return Ok(functionvm);
             }

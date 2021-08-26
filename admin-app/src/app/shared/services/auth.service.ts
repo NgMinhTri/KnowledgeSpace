@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 //oidc-client: thư viện dùng để liên kết IdentityServer cho Client
 import { UserManager, UserManagerSettings, User } from 'oidc-client';
 import { BehaviorSubject } from 'rxjs';
+import { Profile } from '../models';
 import { BaseService } from './base.service';
 
 
@@ -51,6 +52,10 @@ export class AuthService extends BaseService {
     return this.user != null ? this.user.profile.name : '';
   }
 
+  get profile(): Profile {
+    return this.user != null ? this.user.profile : null;
+  }
+  
   async signout() {
     await this.manager.signoutRedirect();
   }

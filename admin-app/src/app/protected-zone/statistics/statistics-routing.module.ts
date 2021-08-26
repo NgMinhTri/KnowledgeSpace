@@ -10,7 +10,7 @@ const routes: Routes = [
         component: MonthlyNewKbsComponent
     },
     {
-        path: 'monthly-new-kbs',
+        path: 'monthly-newkbs',
         component: MonthlyNewKbsComponent
     },
     {
@@ -18,7 +18,7 @@ const routes: Routes = [
         component: MonthlyNewMembersComponent
     },
     {
-        path: 'monthly-new-comments',
+        path: 'monthly-comments',
         component: MonthlyNewCommentsComponent
     }
 ];
