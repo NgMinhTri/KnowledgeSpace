@@ -11,8 +11,8 @@ const routes: Routes = [
             { path: 'dashboard', loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule) },
             { path: 'contents', loadChildren: () => import('./contents/contents.module').then(m => m.ContentsModule) },
             { path: 'systems', loadChildren: () => import('./systems/systems.module').then(m => m.SystemsModule) },
-            { path: 'statistics', loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsModule) }
-            
+            { path: 'statistics', loadChildren: () => import('./statistics/statistics.module').then(m => m.StatisticsModule) },
+
         ]
     }
 ];
@@ -21,4 +21,4 @@ const routes: Routes = [
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class LayoutRoutingModule {}
+export class LayoutRoutingModule { }

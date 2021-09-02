@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { AuthService } from '@app/shared/services';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { AuthService } from '@app/shared/services';
 
 @Component({
     selector: 'app-header',
@@ -11,14 +11,16 @@ import { Subscription } from 'rxjs';
 })
 export class HeaderComponent implements OnInit {
     public pushRightClass: string;
+
     userName: string;
     isAuthenticated: boolean;
     subscription: Subscription;
 
     constructor(private translate: TranslateService, public router: Router,
         private authService: AuthService) {
-            this.subscription = this.authService.authNavStatus$.subscribe(status => this.isAuthenticated = status);
-            this.userName = this.authService.name;
+
+        this.subscription = this.authService.authNavStatus$.subscribe(status => this.isAuthenticated = status);
+        this.userName = this.authService.name;
 
         this.router.events.subscribe(val => {
             if (

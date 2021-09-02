@@ -1,9 +1,8 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { Function } from '@app/shared/models';
-import { AuthService } from '@app/shared/services';
-import { UserService } from '@app/shared/services/user.service';
 import { TranslateService } from '@ngx-translate/core';
+import { UsersService, AuthService } from '@app/shared/services';
+import { Function } from '@app/shared/models';
 
 @Component({
     selector: 'app-sidebar',
@@ -19,9 +18,10 @@ export class SidebarComponent implements OnInit {
 
     @Output() collapsedEvent = new EventEmitter<boolean>();
 
-    constructor(private translate: TranslateService, public router: Router,
-        private userService: UserService, private authService: AuthService) {
-            this.loadMenu();
+    constructor(private translate: TranslateService,
+        public router: Router, private userService: UsersService,
+        private authService: AuthService) {
+        this.loadMenu();
         this.router.events.subscribe(val => {
             if (
                 val instanceof NavigationEnd &&
@@ -32,12 +32,11 @@ export class SidebarComponent implements OnInit {
             }
         });
     }
-    
-    loadMenu(){
-        const profile =this.authService.profile;
-        this.userService.getMenuByUser(profile.sub).subscribe((response: Function[])=>{
+    loadMenu() {
+        const profile = this.authService.profile;
+        this.userService.getMenuByUser(profile.sub).subscribe((response: Function[]) => {
             this.functions = response;
-        })
+        });
     }
     ngOnInit() {
         this.isActive = false;

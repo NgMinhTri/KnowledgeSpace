@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { KnowledgeBasesComponent } from './knowledge-bases/knowledge-bases.component';
 import { CategoriesComponent } from './categories/categories.component';
 import { CommentsComponent } from './comments/comments.component';
-import { KnowledgeBasesComponent } from './knowledge-bases/knowledge-bases.component';
 import { ReportsComponent } from './reports/reports.component';
 
 const routes: Routes = [

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../shared/services';
 import { NgxSpinnerService } from 'ngx-spinner';
+
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
@@ -9,7 +10,10 @@ import { NgxSpinnerService } from 'ngx-spinner';
     animations: [routerTransition()]
 })
 export class LoginComponent implements OnInit {
-    constructor(private authService: AuthService, private spinner: NgxSpinnerService) {}
+    constructor(
+      private authService: AuthService,
+      private spinner: NgxSpinnerService
+    ) {}
 
     ngOnInit() {}
 
@@ -17,4 +21,5 @@ export class LoginComponent implements OnInit {
         this.spinner.show();
         this.authService.login();
       }
+
 }

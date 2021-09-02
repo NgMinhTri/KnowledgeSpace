@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { FunctionsComponent } from './functions/functions.component';
-import { PermissionsComponent } from './permissions/permissions.component';
-import { RolesComponent } from './roles/roles.component';
 import { UsersComponent } from './users/users.component';
+import { FunctionsComponent } from './functions/functions.component';
+import { RolesComponent } from './roles/roles.component';
+import { PermissionsComponent } from './permissions/permissions.component';
 
 const routes: Routes = [
     {

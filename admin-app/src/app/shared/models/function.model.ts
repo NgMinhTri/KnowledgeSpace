@@ -1,8 +1,8 @@
-export class Function{
+export class Function {
     id: string;
     name: string;
     url: string;
     sortOrder: number;
-    parentId: number;
-    icon: string;
+    parentId: string;
+    icon:string;
 }

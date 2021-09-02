@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MonthlyNewCommentsComponent } from './monthly-new-comments/monthly-new-comments.component';
 import { MonthlyNewKbsComponent } from './monthly-new-kbs/monthly-new-kbs.component';
 import { MonthlyNewMembersComponent } from './monthly-new-members/monthly-new-members.component';
+import { MonthlyNewCommentsComponent } from './monthly-new-comments/monthly-new-comments.component';
 
 const routes: Routes = [
     {
@@ -10,7 +10,7 @@ const routes: Routes = [
         component: MonthlyNewKbsComponent
     },
     {
-        path: 'monthly-newkbs',
+        path: 'monthly-new-kbs',
         component: MonthlyNewKbsComponent
     },
     {
@@ -18,7 +18,7 @@ const routes: Routes = [
         component: MonthlyNewMembersComponent
     },
     {
-        path: 'monthly-comments',
+        path: 'monthly-new-comments',
         component: MonthlyNewCommentsComponent
     }
 ];

@@ -4,7 +4,7 @@ import { AppComponent } from './app.component';
 import { AuthGuard } from './shared';
 
 const routes: Routes = [
-    { path: '', loadChildren: () => import('./protected-zone/layout.module').then(m => m.LayoutModule), canActivate: [AuthGuard] },
+    { path: '', loadChildren: () => import('./protected-zone/layout.module').then(m => m.ProtectedZoneModule), canActivate: [AuthGuard] },
     { path: 'login', loadChildren: () => import('./login/login.module').then(m => m.LoginModule) },
     { path: 'auth-callback', loadChildren: () => import('./auth-callback/auth-callback.module').then(m => m.AuthCallbackModule) },
     { path: 'error', loadChildren: () => import('./server-error/server-error.module').then(m => m.ServerErrorModule) },

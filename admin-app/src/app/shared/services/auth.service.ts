@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-//oidc-client: thư viện dùng để liên kết IdentityServer cho Client
 import { UserManager, UserManagerSettings, User } from 'oidc-client';
 import { BehaviorSubject } from 'rxjs';
-import { Profile } from '../models';
 import { BaseService } from './base.service';
+import { Profile } from '../models';
 
 
 @Injectable({
