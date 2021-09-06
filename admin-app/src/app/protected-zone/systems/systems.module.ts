@@ -22,7 +22,10 @@ import { ValidationMessageModule } from '@app/shared/modules/validation-message/
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersDetailComponent } from './users/users-detail/users-detail.component';
 import { RolesAssignComponent } from './users/roles-assign/roles-assign.component';
-
+import { TreeTableModule } from 'primeng/treetable';
+import { DropdownModule } from 'primeng/dropdown';
+import { FunctionsDetailComponent } from './functions/functions-detail/functions-detail.component';
+import { CommandsAssignComponent } from './functions/commands-assign/commands-assign.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +35,9 @@ import { RolesAssignComponent } from './users/roles-assign/roles-assign.componen
     PermissionsComponent, 
     RolesDetailComponent, 
     UsersDetailComponent, 
-    RolesAssignComponent],
+    RolesAssignComponent, 
+    FunctionsDetailComponent, 
+    CommandsAssignComponent],
   imports: [
     CommonModule,
     SystemsRoutingModule,
@@ -43,6 +48,8 @@ import { RolesAssignComponent } from './users/roles-assign/roles-assign.componen
     BlockUIModule,
     InputTextModule,
     KeyFilterModule,
+    TreeTableModule,
+    DropdownModule,
     CalendarModule,
     CheckboxModule,
     FormsModule,
