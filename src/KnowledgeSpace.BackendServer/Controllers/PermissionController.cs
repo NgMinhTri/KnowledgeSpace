@@ -11,14 +11,19 @@ using System.Threading.Tasks;
 
 namespace KnowledgeSpace.BackendServer.Controllers
 {
-    public class PermissionController : BaseController
+    public class PermissionsController : BaseController
     {
         private readonly IConfiguration _configuration;
-        public PermissionController(IConfiguration configuration)
+
+        public PermissionsController(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Show list function with corressponding action included in each functions
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [ClaimRequirement(FunctionCode.SYSTEM_PERMISSION, CommandCode.VIEW)]
         public async Task<IActionResult> GetCommandViews()
