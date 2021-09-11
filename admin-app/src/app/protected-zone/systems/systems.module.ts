@@ -12,9 +12,6 @@ import { PaginatorModule } from 'primeng/paginator';
 import { BlockUIModule } from 'primeng/blockui';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
-import { KeyFilterModule } from 'primeng/keyfilter';
 import { RolesDetailComponent } from './roles/roles-detail/roles-detail.component';
 import { NotificationService } from '@app/shared/services';
 import { BsModalService, ModalModule } from 'ngx-bootstrap/modal';
@@ -22,22 +19,27 @@ import { ValidationMessageModule } from '@app/shared/modules/validation-message/
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersDetailComponent } from './users/users-detail/users-detail.component';
 import { RolesAssignComponent } from './users/roles-assign/roles-assign.component';
+import { CalendarModule } from 'primeng/calendar';
+import { CheckboxModule } from 'primeng/checkbox';
+
+import { KeyFilterModule } from 'primeng/keyfilter';
 import { TreeTableModule } from 'primeng/treetable';
 import { DropdownModule } from 'primeng/dropdown';
 import { FunctionsDetailComponent } from './functions/functions-detail/functions-detail.component';
 import { CommandsAssignComponent } from './functions/commands-assign/commands-assign.component';
 import { SharedDirectivesModule } from '@app/shared/directives/shared-directives.module';
 
+
 @NgModule({
   declarations: [
-    FunctionsComponent, 
-    UsersComponent, 
-    RolesComponent, 
-    PermissionsComponent, 
-    RolesDetailComponent, 
-    UsersDetailComponent, 
-    RolesAssignComponent, 
-    FunctionsDetailComponent, 
+    FunctionsComponent,
+    UsersComponent,
+    RolesComponent,
+    PermissionsComponent,
+    RolesDetailComponent,
+    UsersDetailComponent,
+    RolesAssignComponent,
+    FunctionsDetailComponent,
     CommandsAssignComponent],
   imports: [
     CommonModule,
@@ -47,20 +49,20 @@ import { SharedDirectivesModule } from '@app/shared/directives/shared-directives
     TableModule,
     PaginatorModule,
     BlockUIModule,
-    InputTextModule,
-    KeyFilterModule,
-    TreeTableModule,
-    DropdownModule,
-    CalendarModule,
-    CheckboxModule,
     FormsModule,
+    InputTextModule,
     ReactiveFormsModule,
     ProgressSpinnerModule,
     ValidationMessageModule,
+    KeyFilterModule,
+    CalendarModule,
+    CheckboxModule,
+    TreeTableModule,
+    DropdownModule,
     SharedDirectivesModule,
     ModalModule.forRoot()
   ],
-  providers:[
+  providers: [
     NotificationService,
     BsModalService,
     DatePipe

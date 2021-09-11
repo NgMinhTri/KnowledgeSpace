@@ -85,7 +85,6 @@ namespace KnowledgeSpace.BackendServer.Data.Migrations
                     FileType = table.Column<string>(type: "varchar(4)", maxLength: 4, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
                     KnowledgeBaseId = table.Column<int>(type: "int", nullable: false),
-                    Type = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },

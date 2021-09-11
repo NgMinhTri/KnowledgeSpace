@@ -96,11 +96,6 @@ namespace KnowledgeSpace.BackendServer.Data.Migrations
                     b.Property<DateTime?>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)");
-
                     b.HasKey("Id");
 
                     b.ToTable("Attachments");
