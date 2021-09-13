@@ -41,7 +41,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                     LastName = u.LastName,
                     UserName = u.UserName,
                     Email = u.Email,
-                    PhoneNumber = u.PhoneNumber
+                    PhoneNumber = u.PhoneNumber,
+                    LastModifiedDate = u.LastModifiedDate
                 })
                 .ToListAsync();
             return Ok(user);               
@@ -62,7 +63,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 LastName = user.LastName,
                 UserName = user.UserName,
                 Email = user.Email,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                LastModifiedDate = user.LastModifiedDate
             };
             return Ok(userVm);
         }
@@ -90,7 +92,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                     Email = u.Email,
                     PhoneNumber = u.PhoneNumber,
                     FirstName = u.FirstName,
-                    LastName = u.LastName
+                    LastName = u.LastName,
+                    LastModifiedDate = u.LastModifiedDate
                 })
                 .ToListAsync();
 
@@ -116,7 +119,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 UserName = userVm.UserName,
                 Dob = DateTime.Parse(userVm.Dob),           
                 Email = userVm.Email,
-                PhoneNumber = userVm.PhoneNumber
+                PhoneNumber = userVm.PhoneNumber,
+                CreateDate = DateTime.Now
                
             };
             var result = await _userManager.CreateAsync(user, userVm.Password);
@@ -141,6 +145,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             user.FirstName = userVm.FirstName;
             user.LastName = userVm.LastName;
             user.Dob = DateTime.Parse(userVm.Dob);
+            user.LastModifiedDate = DateTime.Now;
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
