@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '@environments/environment';
 import { UserManager, UserManagerSettings, User, Profile } from 'oidc-client';
 import { BehaviorSubject } from 'rxjs';
 import { BaseService } from './base.service';
@@ -60,15 +61,15 @@ export class AuthService extends BaseService {
 
 export function getClientSettings(): UserManagerSettings {
   return {
-    authority: 'https://localhost:5000',
-    client_id: 'angular_admin',
-    redirect_uri: 'http://localhost:4200/auth-callback',
-    post_logout_redirect_uri: 'http://localhost:4200/',
+    authority: environment.authorityUrl,
+    client_id: environment.clientId,
+    redirect_uri: environment.adminUrl +'/auth-callback',
+    post_logout_redirect_uri: environment.adminUrl,
     response_type: 'code',
     scope: 'api.knowledgespace openid profile',
     filterProtocolClaims: true,
     loadUserInfo: true,
     automaticSilentRenew: true,
-    silent_redirect_uri: 'http://localhost:4200/silent-refresh.html'
+    silent_redirect_uri: environment.adminUrl +'/silent-refresh.html'
   };
 }
