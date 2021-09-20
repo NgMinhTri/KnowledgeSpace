@@ -1,4 +1,5 @@
-﻿using KnowledgeSpace.ViewModel.Contents;
+﻿using KnowledgeSpace.ViewModel;
+using KnowledgeSpace.ViewModel.Contents;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,5 +10,6 @@ namespace KnowledgeSpace.WebPortal.Services
         Task<List<KnowledgeBaseQuickVm>> GetPopularKnowledgeBases(int take);
         Task<List<KnowledgeBaseQuickVm>> GetLatestKnowledgeBases(int take);
         Task<List<LabelVm>> GetPopularLabels(int take);
+        Task<Pagination<KnowledgeBaseQuickVm>> GetKnowledgeBasesByCategoryId(int categoryId, int pageIndex, int pageSize);
     }
 }

@@ -1,4 +1,5 @@
-﻿using KnowledgeSpace.ViewModel.Contents;
+﻿using KnowledgeSpace.ViewModel;
+using KnowledgeSpace.ViewModel.Contents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -50,6 +51,17 @@ namespace KnowledgeSpace.WebPortal.Services
             var response = await client.GetAsync($"/api/labels/popular/{take}");
             var popularlabel = JsonConvert.DeserializeObject<List<LabelVm>>(await response.Content.ReadAsStringAsync());
             return popularlabel;
+        }
+
+
+        public async Task<Pagination<KnowledgeBaseQuickVm>> GetKnowledgeBasesByCategoryId(int categoryId, int pageIndex, int pageSize)
+        {
+            var apiUrl = $"/api/knowledgeBases/filter?categoryId={categoryId}&pageIndex={pageIndex}&pageSize={pageSize}";
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
+            var response = await client.GetAsync(apiUrl);
+            var knowledgeBases = JsonConvert.DeserializeObject<Pagination<KnowledgeBaseQuickVm>>(await response.Content.ReadAsStringAsync());
+            return knowledgeBases;
         }
     }
 }

@@ -29,11 +29,18 @@ namespace KnowledgeSpace.WebPortal.Services
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
-            //var token = await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
-            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             var response = await client.GetAsync("/api/categories");
             var categories = JsonConvert.DeserializeObject<List<CategoryVm>>(await response.Content.ReadAsStringAsync());
             return categories;
+        }
+
+        public async Task<CategoryVm> GetCategoryById(int id)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
+            var response = await client.GetAsync("/api/categories/{id}");
+            var category = JsonConvert.DeserializeObject<CategoryVm>(await response.Content.ReadAsStringAsync());
+            return category;
         }
     }
 }
