@@ -29,7 +29,7 @@ namespace KnowledgeSpace.WebPortal.Services
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
-            var response = await client.GetAsync("/api/categories");
+            var response = await client.GetAsync($"/api/categories");
             var categories = JsonConvert.DeserializeObject<List<CategoryVm>>(await response.Content.ReadAsStringAsync());
             return categories;
         }
@@ -38,7 +38,7 @@ namespace KnowledgeSpace.WebPortal.Services
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
-            var response = await client.GetAsync("/api/categories/{id}");
+            var response = await client.GetAsync($"/api/Categories/{id}");
             var category = JsonConvert.DeserializeObject<CategoryVm>(await response.Content.ReadAsStringAsync());
             return category;
         }
