@@ -43,16 +43,6 @@ namespace KnowledgeSpace.WebPortal.Services
             return latestKnowledgeBases;
         }
 
-
-        public async Task<List<LabelVm>> GetPopularLabels(int take)
-        {
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
-            var response = await client.GetAsync($"/api/labels/popular/{take}");
-            var popularlabel = JsonConvert.DeserializeObject<List<LabelVm>>(await response.Content.ReadAsStringAsync());
-            return popularlabel;
-        }
-
         public async Task<Pagination<KnowledgeBaseQuickVm>> GetKnowledgeBasesByCategoryId(int categoryId, int pageIndex, int pageSize)
         {
             var apiUrl = $"/api/knowledgeBases/filter?categoryId={categoryId}&pageIndex={pageIndex}&pageSize={pageSize}";
@@ -87,6 +77,16 @@ namespace KnowledgeSpace.WebPortal.Services
         public async Task<Pagination<KnowledgeBaseQuickVm>> SearchKnowledgeBase(string keyword, int pageIndex, int pageSize)
         {
             var apiUrl = $"/api/knowledgeBases/filter?filter={keyword}&pageIndex={pageIndex}&pageSize={pageSize}";
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
+            var response = await client.GetAsync(apiUrl);
+            var knowledgeBases = JsonConvert.DeserializeObject<Pagination<KnowledgeBaseQuickVm>>(await response.Content.ReadAsStringAsync());
+            return knowledgeBases;
+        }
+
+        public async Task<Pagination<KnowledgeBaseQuickVm>> GetKnowledgeBasesByTagId(string tagId, int pageIndex, int pageSize)
+        {
+            var apiUrl = $"/api/knowledgeBases/tags/{tagId}?pageIndex={pageIndex}&pageSize={pageSize}";
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
             var response = await client.GetAsync(apiUrl);

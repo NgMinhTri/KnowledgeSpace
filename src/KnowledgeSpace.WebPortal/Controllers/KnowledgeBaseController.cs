@@ -11,14 +11,17 @@ namespace KnowledgeSpace.WebPortal.Controllers
         private readonly IKnowledgeBaseApiClient _knowledgeBaseApiClient;
         private readonly ICategoryApiClient _categoryApiClient;
         private readonly IConfiguration _configuration;
+        private readonly ILabelApiClient _labelApiClient;
 
         public KnowledgeBaseController(IKnowledgeBaseApiClient knowledgeBaseApiClient,
             ICategoryApiClient categoryApiClient,
-            IConfiguration configuration)
+            IConfiguration configuration,
+             ILabelApiClient labelApiClient)
         {
             _knowledgeBaseApiClient = knowledgeBaseApiClient;
             _categoryApiClient = categoryApiClient;
             _configuration = configuration;
+            _labelApiClient = labelApiClient;
         }
 
         public async Task<IActionResult> ListByCategoryId(int id, int page = 1)
@@ -56,6 +59,19 @@ namespace KnowledgeSpace.WebPortal.Controllers
             {
                 Data = data,
                 Keyword = keyword
+            };
+            return View(viewModel);
+        }
+
+        public async Task<IActionResult> ListByTag(string tagId, int page = 1)
+        {
+            var pageSize = int.Parse(_configuration["PageSize"]);
+            var data = await _knowledgeBaseApiClient.GetKnowledgeBasesByTagId(tagId, page, pageSize);
+            var label = await _labelApiClient.GetLabelById(tagId);
+            var viewModel = new ListByTagIdViewModel()
+            {
+                Data = data,
+                LabelVm = label
             };
             return View(viewModel);
         }
