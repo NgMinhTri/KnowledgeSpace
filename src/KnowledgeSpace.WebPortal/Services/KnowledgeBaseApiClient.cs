@@ -82,5 +82,16 @@ namespace KnowledgeSpace.WebPortal.Services
             var labels = JsonConvert.DeserializeObject<List<LabelVm>>(await response.Content.ReadAsStringAsync());
             return labels;
         }
+
+        //Tìm kiếm bài viết theo từ khóa
+        public async Task<Pagination<KnowledgeBaseQuickVm>> SearchKnowledgeBase(string keyword, int pageIndex, int pageSize)
+        {
+            var apiUrl = $"/api/knowledgeBases/filter?filter={keyword}&pageIndex={pageIndex}&pageSize={pageSize}";
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
+            var response = await client.GetAsync(apiUrl);
+            var knowledgeBases = JsonConvert.DeserializeObject<Pagination<KnowledgeBaseQuickVm>>(await response.Content.ReadAsStringAsync());
+            return knowledgeBases;
+        }
     }
 }
