@@ -1,4 +1,5 @@
-﻿using KnowledgeSpace.WebPortal.Models;
+﻿using KnowledgeSpace.ViewModel.Contents;
+using KnowledgeSpace.WebPortal.Models;
 using KnowledgeSpace.WebPortal.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -75,5 +76,23 @@ namespace KnowledgeSpace.WebPortal.Controllers
             };
             return View(viewModel);
         }
+
+        #region AJAX Methods
+        public async Task<IActionResult> GetCommentByKnowledgeBaseId(int knowledgeBaseId)
+        {
+            var data = await _knowledgeBaseApiClient.GetCommentsTree(knowledgeBaseId);
+            return Ok(data);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddNewComment([FromForm] PostCommentVm request)
+        {
+            var result = await _knowledgeBaseApiClient.PostComment(request);
+            if (result)
+                return Ok();
+            return BadRequest();
+        }
+
+        #endregion AJAX Methods
     }
 }

@@ -7,7 +7,6 @@ namespace KnowledgeSpace.WebPortal.Models
     {
         public CategoryVm Category { set; get; }
         public KnowledgeBaseVm Detail { get; set; }
-
         public List<LabelVm> Labels { get; set; }
     }
 }

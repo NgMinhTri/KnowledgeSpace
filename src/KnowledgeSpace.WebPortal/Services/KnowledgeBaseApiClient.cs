@@ -20,11 +20,6 @@ namespace KnowledgeSpace.WebPortal.Services
 
         public async Task<List<KnowledgeBaseQuickVm>> GetPopularKnowledgeBases(int take)
         {
-            //var client = _httpClientFactory.CreateClient();
-            //client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
-            //var response = await client.GetAsync($"/api/knowledgeBases/popular/{take}");
-            //var latestKnowledgeBases = JsonConvert.DeserializeObject<List<KnowledgeBaseQuickVm>>(await response.Content.ReadAsStringAsync());
-            //return latestKnowledgeBases;
             return await GetListAsync<KnowledgeBaseQuickVm>($"/api/knowledgeBases/popular/{take}");
         }
 
@@ -67,6 +62,16 @@ namespace KnowledgeSpace.WebPortal.Services
         public async Task<List<CommentVm>> GetRecentComments(int take)
         {
             return await GetListAsync<CommentVm>($"/api/knowledgeBases/comments/recent/{take}");
+        }
+
+        public async Task<List<CommentVm>> GetCommentsTree(int knowledgeBaseId)
+        {
+            return await GetListAsync<CommentVm>($"/api/knowledgeBases/{knowledgeBaseId}/comments/tree");
+        }
+
+        public async Task<bool> PostComment(PostCommentVm request)
+        {
+            return await PostAsync($"/api/knowledgeBases/{request.KnowledgeBaseId}/comments", request);
         }
     }
 }
