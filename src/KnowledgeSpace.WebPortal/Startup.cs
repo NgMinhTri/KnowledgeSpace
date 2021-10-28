@@ -67,6 +67,7 @@ namespace KnowledgeSpace.WebPortal
             services.AddTransient<ICategoryApiClient, CategoryApiClient>();
             services.AddTransient<IKnowledgeBaseApiClient, KnowledgeBaseApiClient>();
             services.AddTransient<ILabelApiClient, LabelApiClient>();
+            services.AddTransient<IUserApiClient, UserApiClient>();
 
             services.AddControllersWithViews();
             services.AddRazorPages()

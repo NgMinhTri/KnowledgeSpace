@@ -5,11 +5,9 @@ namespace KnowledgeSpace.WebPortal.Extensions
 {
     public static class IdentityExtensions
     {
-        public static string GetFullName(this ClaimsPrincipal claimsPrincipal)
+        public static string GetUserId(this ClaimsPrincipal claimsPrincipal)
         {
-            var claim = ((ClaimsIdentity)claimsPrincipal.Identity)
-                .Claims
-                .SingleOrDefault(x => x.Type == "fullname");
+            var claim = ((ClaimsIdentity)claimsPrincipal.Identity).Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             return claim.Value;
         }
     }
