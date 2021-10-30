@@ -1,18 +1,15 @@
+using FluentValidation.AspNetCore;
+using KnowledgeSpace.ViewModel.Contents;
 using KnowledgeSpace.WebPortal.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace KnowledgeSpace.WebPortal
 {
@@ -69,7 +66,8 @@ namespace KnowledgeSpace.WebPortal
             services.AddTransient<ILabelApiClient, LabelApiClient>();
             services.AddTransient<IUserApiClient, UserApiClient>();
 
-            services.AddControllersWithViews();
+            services.AddControllersWithViews()
+                    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<PostKnowledgeBaseVmValidator>()); 
             services.AddRazorPages()
                     .AddRazorRuntimeCompilation();
         }
@@ -100,9 +98,19 @@ namespace KnowledgeSpace.WebPortal
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                name: "List By Tag Id",
-                pattern: "/tag/{tagId}",
-                new { controller = "KnowledgeBase", action = "ListByTag" });
+                 name: "My KBs",
+                 pattern: "/my-kbs",
+                 new { controller = "Account", action = "MyKnowledgeBases" });
+
+                endpoints.MapControllerRoute(
+                  name: "New KB",
+                  pattern: "/new-kb",
+                  new { controller = "Account", action = "CreateNewKnowledgeBase" });
+
+                endpoints.MapControllerRoute(
+                 name: "List By Tag Id",
+                 pattern: "/tag/{tagId}",
+                 new { controller = "KnowledgeBase", action = "ListByTag" });
 
                 endpoints.MapControllerRoute(
                  name: "Search KB",
