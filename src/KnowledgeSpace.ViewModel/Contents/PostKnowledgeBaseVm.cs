@@ -6,6 +6,8 @@ namespace KnowledgeSpace.ViewModel.Contents
 {
     public class PostKnowledgeBaseVm
     {
+        public int? Id { get; set; }
+
         [Display(Name = "Danh mục")]
         public int CategoryId { get; set; }
 
