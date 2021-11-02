@@ -1,4 +1,5 @@
 ﻿using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.BackendServer.Extensions;
 using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.ViewModel.Contents;
 using Microsoft.AspNetCore.Mvc;
@@ -30,28 +31,36 @@ namespace KnowledgeSpace.BackendServer.Controllers
         [HttpPost("{knowledgeBaseId}/votes")]
         public async Task<IActionResult> PostVote(int knowledgeBaseId, [FromBody] PostVoteVm request)
         {
-            var vote = await _context.Votes.FindAsync(knowledgeBaseId, request.UserId);
-            if (vote != null)
-                return BadRequest(new ApiBadRequestResponse("This user has been voted for this KB"));
 
-            vote = new Vote()
-            {
-                KnowledgeBaseId = knowledgeBaseId,
-                UserId = request.UserId
-            };
-            _context.Votes.Add(vote);
-
+            var userId = User.GetUserId();
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase != null)
+            if (knowledgeBase == null)
                 return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
 
-            knowledgeBase.NumberOfVotes = knowledgeBase.NumberOfVotes.GetValueOrDefault(0) + 1;
+            var numberOfVotes = await _context.Votes.CountAsync(x => x.KnowledgeBaseId == knowledgeBaseId && x.UserId == userId);
+            var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
+            if (vote != null)
+            {
+                _context.Votes.Remove(vote);
+                numberOfVotes -= 1;
+            }
+            else
+            {
+                vote = new Vote()
+                {
+                    KnowledgeBaseId = knowledgeBaseId,
+                    UserId = userId
+                };
+                _context.Votes.Add(vote);
+                numberOfVotes += 1;
+            }
+            knowledgeBase.NumberOfVotes = numberOfVotes;
             _context.KnowledgeBases.Update(knowledgeBase);
 
             var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
-                return NoContent();
+                return Ok(numberOfVotes);
             }
             else
             {
@@ -61,7 +70,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
 
         [HttpDelete("{knowledgeBaseId}/votes/{userId}")]
-        public async Task<IActionResult> DeleteComment(int knowledgeBaseId, string userId)
+        public async Task<IActionResult> DeleteVote(int knowledgeBaseId, string userId)
         {
             var vote = await _context.Votes.FindAsync(knowledgeBaseId, userId);
             if (vote == null)

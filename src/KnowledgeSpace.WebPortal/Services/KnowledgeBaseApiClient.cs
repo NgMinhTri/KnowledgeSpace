@@ -173,5 +173,9 @@ namespace KnowledgeSpace.WebPortal.Services
             return await PutAsync<object, bool>($"/api/knowledgeBases/{id}/view-count", null, false);
         }
 
+        public async Task<int> Vote(PostVoteVm request)
+        {
+            return await PostAsync<PostVoteVm, int>($"/api/knowledgeBases/{request.KnowledgeBaseId}/votes", request);
+        }
     }
 }

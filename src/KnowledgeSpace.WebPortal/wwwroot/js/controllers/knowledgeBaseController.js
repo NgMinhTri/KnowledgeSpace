@@ -71,6 +71,19 @@
                 });
             });
         });
+
+        //Xử lý post vote cho bài viết
+        $('#frm_vote').submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            $.post('/knowledgeBase/vote', form.serialize()).done(function (response) {
+                $('.like-it').text(response);
+                $('.like-count').text(response);
+            });
+        });
+        $('#frm_vote .like-it').click(function () {
+            $('#frm_vote').submit();
+        });
     }
 
     function loadComments(id) {
