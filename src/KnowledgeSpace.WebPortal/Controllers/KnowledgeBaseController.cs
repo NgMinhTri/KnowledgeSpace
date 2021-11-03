@@ -104,9 +104,16 @@ namespace KnowledgeSpace.WebPortal.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Vote([FromForm] PostVoteVm request)
+        public async Task<IActionResult> PostVote(int knowledgeBaseId)
         {
-            var result = await _knowledgeBaseApiClient.Vote(request);
+            var result = await _knowledgeBaseApiClient.PostVote(knowledgeBaseId);
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostReport([FromForm] PostReportVm request)
+        {
+            var result = await _knowledgeBaseApiClient.PostReport(request);
             return Ok(result);
         }
         #endregion AJAX Methods

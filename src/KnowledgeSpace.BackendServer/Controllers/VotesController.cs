@@ -13,7 +13,6 @@ namespace KnowledgeSpace.BackendServer.Controllers
     {
         #region Vote
         [HttpGet("{knowledgeBaseId}/votes")]
-
         public async Task<IActionResult> GetVotes(int knowledgeBaseId)
         {
             var vote = await _context.Votes
@@ -29,7 +28,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         }
 
         [HttpPost("{knowledgeBaseId}/votes")]
-        public async Task<IActionResult> PostVote(int knowledgeBaseId, [FromBody] PostVoteVm request)
+        public async Task<IActionResult> PostVote(int knowledgeBaseId)
         {
 
             var userId = User.GetUserId();

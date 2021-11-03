@@ -23,6 +23,7 @@
 .field-validation-error {
 	color: red;
 }
+
 .cke {
 	margin-bottom: 10px !important;
 }
@@ -33,4 +34,8 @@
 
 .validation-summary-errors {
 	color: red;
+}
+
+.text-area {
+	width: 97%;
 }

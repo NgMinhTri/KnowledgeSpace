@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.BackendServer.Extensions;
 using KnowledgeSpace.BackendServer.Helpers;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Contents;
@@ -85,13 +86,13 @@ namespace KnowledgeSpace.BackendServer.Controllers
             {
                 Content = request.Content,
                 KnowledgeBaseId = knowledgeBaseId,
-                ReportUserId = request.ReportUserId,
+                ReportUserId = User.GetUserId(),
                 IsProcessed = false
             };
             _context.Reports.Add(report);
 
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase != null)
+            if (knowledgeBase == null)
                 return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
 
             knowledgeBase.NumberOfReports = knowledgeBase.NumberOfReports.GetValueOrDefault(0) + 1;
@@ -108,28 +109,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             }
         }
 
-        [HttpPut("{knowledgeBaseId}/reports/{reportId}")]
-        [ApiValidationFilter]
-        public async Task<IActionResult> PutReport(int reportId, [FromBody] PostCommentVm request)
-        {
-            var report = await _context.Reports.FindAsync(reportId);
-            if (report == null)
-                return BadRequest(new ApiNotFoundResponse($"Cannot found report with id {reportId}"));
-
-            if (report.ReportUserId != User.Identity.Name)
-                return Forbid();
-
-            report.Content = request.Content;
-            _context.Reports.Update(report);
-
-            var result = await _context.SaveChangesAsync();
-
-            if (result > 0)
-            {
-                return NoContent();
-            }
-            return BadRequest(new ApiBadRequestResponse($"Update report failed"));
-        }
+      
 
         [HttpDelete("{knowledgeBaseId}/reports/{reportId}")]
         public async Task<IActionResult> DeleteReport(int knowledgeBaseId, int reportId)
@@ -141,7 +121,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             _context.Reports.Remove(report);
 
             var knowledgeBase = await _context.KnowledgeBases.FindAsync(knowledgeBaseId);
-            if (knowledgeBase != null)
+            if (knowledgeBase == null)
                 return BadRequest(new ApiBadRequestResponse($"Cannot found knowledge base with id {knowledgeBaseId}"));
 
             knowledgeBase.NumberOfReports = knowledgeBase.NumberOfReports.GetValueOrDefault(0) - 1;
