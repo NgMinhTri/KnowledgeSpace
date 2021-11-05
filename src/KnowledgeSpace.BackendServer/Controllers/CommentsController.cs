@@ -5,6 +5,7 @@ using KnowledgeSpace.BackendServer.Constants;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Extensions;
 using KnowledgeSpace.BackendServer.Helpers;
+using KnowledgeSpace.BackendServer.Models;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Contents;
 using Microsoft.AspNetCore.Authorization;
@@ -142,7 +143,24 @@ namespace KnowledgeSpace.BackendServer.Controllers
             var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
-                 return CreatedAtAction(nameof(GetCommentDetail), new { id = knowledgeBaseId, commentId = comment.Id }, new CommentVm()
+                //Send mail
+                if (comment.ReplyId.HasValue)
+                {
+                    var repliedComment = await _context.Comments.FindAsync(comment.ReplyId.Value);
+                    var repledUser = await _context.Users.FindAsync(repliedComment.OwnerUserId);
+                    var emailModel = new RepliedCommentVm()
+                    {
+                        CommentContent = request.Content,
+                        KnowledeBaseId = knowledgeBaseId,
+                        KnowledgeBaseSeoAlias = knowledgeBase.SeoAlias,
+                        KnowledgeBaseTitle = knowledgeBase.Title,
+                        RepliedName = repledUser.FirstName + " " + repledUser.LastName
+                    };
+                    //https://github.com/leemunroe/responsive-html-email-template
+                    var htmlContent = await _viewRenderService.RenderToStringAsync("_RepliedCommentEmail", emailModel);
+                    await _emailSender.SendEmailAsync(repledUser.Email, "Có người đang trả lời bạn", htmlContent);
+                }
+                return CreatedAtAction(nameof(GetCommentDetail), new { id = knowledgeBaseId, commentId = comment.Id }, new CommentVm()
                 {
                     Id = comment.Id
                 });

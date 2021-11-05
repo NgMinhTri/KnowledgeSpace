@@ -6,6 +6,7 @@ using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Extensions;
 using KnowledgeSpace.BackendServer.IdentityServer;
 using KnowledgeSpace.BackendServer.Services;
+using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Systems;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -108,6 +109,8 @@ namespace KnowledgeSpace.BackendServer
 
             services.AddTransient<ISequenceService, SequenceService>();
             services.AddTransient<IStorageService, FileStorageService>();
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.AddTransient<IViewRenderService, ViewRenderService>();
 
             services.AddSwaggerGen(c =>
             {
