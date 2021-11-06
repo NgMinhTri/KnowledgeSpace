@@ -3,11 +3,13 @@ using KnowledgeSpace.BackendServer.Constants;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
 using KnowledgeSpace.BackendServer.Helpers;
+using KnowledgeSpace.BackendServer.Services;
 using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Contents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,27 +18,34 @@ namespace KnowledgeSpace.BackendServer.Controllers
     public class CategoriesController : BaseController
     {
         private readonly ApplicationDbContext _context;
-        public CategoriesController(ApplicationDbContext context)
+        private readonly ICacheService _cacheService;
+        public CategoriesController(ApplicationDbContext context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetCategories()
         {
-            var category = await _context.Categories.Select(c => new CategoryVm()
+            var cachedData = await _cacheService.GetAsync<List<CategoryVm>>(CacheConstants.Categories);
+            if (cachedData == null)
             {
-                Id = c.Id,
-                Name = c.Name,
-                SeoAlias = c.SeoAlias,
-                SeoDescription = c.SeoDescription,
-                SortOrder = c.SortOrder,
-                ParentId = c.ParentId,
-                NumberOfTickets = c.NumberOfTickets
-
-            }).ToListAsync();
-            return Ok(category);
+                var categoriesVms = await _context.Categories.Select(c => new CategoryVm()
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    SortOrder = c.SortOrder,
+                    ParentId = c.ParentId,
+                    NumberOfTickets = c.NumberOfTickets,
+                    SeoDescription = c.SeoDescription,
+                    SeoAlias = c.SeoAlias
+                }).ToListAsync();
+                await _cacheService.SetAsync(CacheConstants.Categories, categoriesVms);
+                categoriesVms = cachedData;
+            }
+            return Ok(cachedData);
         }
 
         [HttpGet("{id}")]
@@ -143,6 +152,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
             if (result > 0)
             {
+                await _cacheService.RemoveAsync(CacheConstants.Categories);
                 return NoContent();
             }
             return BadRequest(new ApiBadRequestResponse("Update category failed"));
@@ -160,6 +170,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             var result = await _context.SaveChangesAsync();
             if (result > 0)
             {
+                await _cacheService.RemoveAsync("Categories");
                 var categoryVm = new CategoryVm()
                 {
                     Id = category.Id,

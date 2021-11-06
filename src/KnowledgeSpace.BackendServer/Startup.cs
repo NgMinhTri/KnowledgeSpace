@@ -35,7 +35,7 @@ namespace KnowledgeSpace.BackendServer
         public void ConfigureServices(IServiceCollection services)
         {
             //1. Setup entity framework
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContextPool<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             //2. Setup identity
@@ -111,6 +111,7 @@ namespace KnowledgeSpace.BackendServer
             services.AddTransient<IStorageService, FileStorageService>();
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.AddTransient<IViewRenderService, ViewRenderService>();
+            services.AddTransient<ICacheService, DistributedCacheService>();
 
             services.AddSwaggerGen(c =>
             {
@@ -156,6 +157,13 @@ namespace KnowledgeSpace.BackendServer
                     policy.AddAuthenticationSchemes("Bearer");
                     policy.RequireAuthenticatedUser();
                 });
+            });
+
+            services.AddDistributedSqlServerCache(o =>
+            {
+                o.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                o.SchemaName = "dbo";
+                o.TableName = "CacheTable";
             });
         }
 
