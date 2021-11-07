@@ -32,7 +32,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
             var cachedData = await _cacheService.GetAsync<List<CategoryVm>>(CacheConstants.Categories);
             if (cachedData == null)
             {
-                var categoriesVms = await _context.Categories.Select(c => new CategoryVm()
+                var categories = _context.Categories;
+                var categoriesVms = await categories.Select(c => new CategoryVm()
                 {
                     Id = c.Id,
                     Name = c.Name,
