@@ -1,7 +1,8 @@
 ﻿@model KnowledgeBaseDetailViewModel
 @using KnowledgeSpace.WebPortal.Extensions
 @{
-    ViewData["Title"] = Model.Detail.Title;
+    ViewData["Title"] = @Html.Raw(Model.Detail.Title + " - KnowledgeBase");
+    ViewData["Description"] = @Html.Raw(Model.Detail.Description);
     Layout = "_SubLayout";
 }
 @section scripts{
