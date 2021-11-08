@@ -1,4 +1,4 @@
-using KnowledgeSpace.BackendServer.Data;
+﻿using KnowledgeSpace.BackendServer.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,6 +44,8 @@ namespace KnowledgeSpace.BackendServer
 
                     {
                         webBuilder.UseStartup<Startup>();
+                        //tắt thông tin server trả về trình duyệt
+                        webBuilder.UseKestrel(c => c.AddServerHeader = false);
                     });
     }
 }

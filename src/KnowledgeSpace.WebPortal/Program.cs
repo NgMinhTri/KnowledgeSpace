@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -21,6 +21,8 @@ namespace KnowledgeSpace.WebPortal
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    //tắt tên server trả về trình duyệt
+                    webBuilder.UseKestrel(c => c.AddServerHeader = false);
                 });
     }
 }

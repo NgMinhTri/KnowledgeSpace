@@ -165,6 +165,8 @@ namespace KnowledgeSpace.BackendServer
                 o.SchemaName = "dbo";
                 o.TableName = "CacheTable";
             });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -176,6 +178,22 @@ namespace KnowledgeSpace.BackendServer
             }
 
             app.UseErrorWrapping();
+
+            app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opts => opts.NoReferrer());
+            app.UseXXssProtection(options => options.EnabledWithBlockMode());
+            app.UseXfo(options => options.Deny());
+            //app.UseCsp(opts => opts
+            //        .BlockAllMixedContent()
+            //        .StyleSources(s => s.Self())
+            //        .StyleSources(s => s.UnsafeInline())
+            //        .FontSources(s => s.Self())
+            //        .FormActions(s => s.Self())
+            //        .FrameAncestors(s => s.Self())
+            //        .ImageSources(s => s.Self())
+            //        .ScriptSources(s => s.Self())
+            //    );
 
             app.UseStaticFiles();
 
