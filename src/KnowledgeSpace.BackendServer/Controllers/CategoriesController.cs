@@ -44,7 +44,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
                     SeoAlias = c.SeoAlias
                 }).ToListAsync();
                 await _cacheService.SetAsync(CacheConstants.Categories, categoriesVms);
-                categoriesVms = cachedData;
+                cachedData = categoriesVms;
             }
             return Ok(cachedData);
         }
