@@ -73,9 +73,14 @@ namespace KnowledgeSpace.WebPortal.Services
             return await GetListAsync<CommentVm>($"/api/knowledgeBases/comments/recent/{take}");
         }
 
-        public async Task<List<CommentVm>> GetCommentsTree(int knowledgeBaseId)
+        public async Task<Pagination<CommentVm>> GetCommentsTree(int knowledgeBaseId, int pageIndex, int pageSize)
         {
-            return await GetListAsync<CommentVm>($"/api/knowledgeBases/{knowledgeBaseId}/comments/tree");
+            return await GetAsync<Pagination<CommentVm>>($"/api/knowledgeBases/{knowledgeBaseId}/comments/tree?pageIndex={pageIndex}&pageSize={pageSize}");
+        }
+
+        public async Task<Pagination<CommentVm>> GetRepliedComments(int knowledgeBaseId, int rootCommentId, int pageIndex, int pageSize)
+        {
+            return await GetAsync<Pagination<CommentVm>>($"/api/knowledgeBases/{knowledgeBaseId}/comments/{rootCommentId}/replied?pageIndex={pageIndex}&pageSize={pageSize}");
         }
 
         public async Task<CommentVm> PostComment(PostCommentVm request)

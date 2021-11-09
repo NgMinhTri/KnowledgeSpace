@@ -83,6 +83,9 @@
 
         <ol class="commentlist" id="comment_list">
         </ol>
+
+         @*Hiển thị nút show thêm comment*@
+        <a id="comment-pagination" data-page-index="1" href="#" style="display:none">Xem thêm bình luận</a>
         @if (User.Identity.IsAuthenticated)
         {
             <div id="respond">

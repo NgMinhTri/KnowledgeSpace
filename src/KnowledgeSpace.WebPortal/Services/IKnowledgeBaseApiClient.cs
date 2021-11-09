@@ -23,7 +23,9 @@ namespace KnowledgeSpace.WebPortal.Services
 
         Task<Pagination<KnowledgeBaseQuickVm>> GetKnowledgeBasesByTagId(string tagId, int pageIndex, int pageSize);
 
-        Task<List<CommentVm>> GetCommentsTree(int knowledgeBaseId);
+        Task<Pagination<CommentVm>> GetCommentsTree(int knowledgeBaseId, int pageIndex, int pageSize);
+
+        Task<Pagination<CommentVm>> GetRepliedComments(int knowledgeBaseId, int rootCommentId, int pageIndex, int pageSize);
 
         Task<CommentVm> PostComment(PostCommentVm request);
 
