@@ -28,10 +28,17 @@
     <link rel='stylesheet' id='main-css-css' href='/css/main.css?ver=1.0' type='text/css' media='all' />
     <link rel='stylesheet' id='green-skin-css' href='/css/green-skin.css?ver=1.0' type='text/css' media='all' />
 
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-    <script src="js/html5.js"></script>
-    <![endif]-->
+    @*Cấu hình OneSignal để gửi thông báo tới User*@
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function () {
+            OneSignal.init({
+                appId: "e8b9a195-a9ff-4f25-b4e3-6efd46bdfabb",
+            });
+        });
+    </script>
+
 </head>
 
 <body>

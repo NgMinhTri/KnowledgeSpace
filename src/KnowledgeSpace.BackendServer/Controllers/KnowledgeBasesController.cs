@@ -31,6 +31,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         private readonly IEmailSender _emailSender;
         private readonly IViewRenderService _viewRenderService;
         private readonly ICacheService _cacheService;
+        private readonly IOneSignalService _oneSignalService;
 
         public KnowledgeBasesController(ApplicationDbContext context,
             ISequenceService sequenceService,
@@ -38,7 +39,8 @@ namespace KnowledgeSpace.BackendServer.Controllers
             ILogger<KnowledgeBasesController> logger,
             IEmailSender emailSender,
             IViewRenderService viewRenderService,
-            ICacheService cacheService)
+            ICacheService cacheService,
+            IOneSignalService oneSignalService)
         {
             _context = context;
             _sequenceService = sequenceService;
@@ -47,6 +49,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             _emailSender = emailSender;
             _viewRenderService = viewRenderService;
             _cacheService = cacheService;
+            _oneSignalService = oneSignalService;
         }
 
         [HttpGet("latest/{take:int}")]
@@ -152,6 +155,10 @@ namespace KnowledgeSpace.BackendServer.Controllers
                 await _cacheService.RemoveAsync(CacheConstants.LatestKnowledgeBases);
                 await _cacheService.RemoveAsync(CacheConstants.PopularKnowledgeBases);
                 _logger.LogInformation("End PostKnowledgeBase API - Success");
+
+                //Post xong gui thong bao toi User
+                await _oneSignalService.SendAsync(request.Title, request.Description,
+                     string.Format(CommonConstants.KnowledgeBaseUrl, knowledgeBase.SeoAlias, knowledgeBase.Id));
 
                 return CreatedAtAction(nameof(GetById), new
                 {
