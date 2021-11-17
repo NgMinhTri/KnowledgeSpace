@@ -12,6 +12,7 @@ namespace KnowledgeSpace.BackendServer.Helpers
         public ApiResponse(int statusCode, string message = null)
         {
             StatusCode = statusCode;
+            //nếu message != null Message = message nguoc lai Message = statuscode
             Message = message ?? GetDefaultMessageForStatusCode(statusCode);
         }
 

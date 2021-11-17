@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { environment } from '@environments/environment';
 import { UserManager, UserManagerSettings, User, Profile } from 'oidc-client';
 import { BehaviorSubject } from 'rxjs';
 import { BaseService } from './base.service';
+import { environment } from '@environments/environment';
 
 
 @Injectable({
@@ -63,13 +63,13 @@ export function getClientSettings(): UserManagerSettings {
   return {
     authority: environment.authorityUrl,
     client_id: environment.clientId,
-    redirect_uri: environment.adminUrl +'/auth-callback',
+    redirect_uri: environment.adminUrl + '/auth-callback',
     post_logout_redirect_uri: environment.adminUrl,
     response_type: 'code',
     scope: 'api.knowledgespace openid profile',
     filterProtocolClaims: true,
     loadUserInfo: true,
     automaticSilentRenew: true,
-    silent_redirect_uri: environment.adminUrl +'/silent-refresh.html'
+    silent_redirect_uri: environment.adminUrl + '/silent-refresh.html'
   };
 }

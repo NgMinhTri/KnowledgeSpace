@@ -73,7 +73,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
         [HttpGet("filter")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
-        public async Task<IActionResult> GetUser(string filter, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetUsersPaging(string filter, int pageIndex, int pageSize)
         {
             var query = _userManager.Users;
             if (!string.IsNullOrEmpty(filter))

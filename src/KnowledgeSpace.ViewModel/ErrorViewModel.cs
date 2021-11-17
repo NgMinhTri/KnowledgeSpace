@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace KnowledgeSpace.ViewModels
+namespace KnowledgeSpace.ViewModel
 {
     public class ErrorViewModel
     {

@@ -1,4 +1,4 @@
-﻿using KnowledgeSpace.ViewModels;
+﻿using KnowledgeSpace.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
