@@ -90,7 +90,7 @@ namespace KnowledgeSpace.WebPortal.Services
 
         public async Task<bool> PostKnowlegdeBase(PostKnowledgeBaseVm request)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("BackendApi");
             client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
             using var requestContent = new MultipartFormDataContent();
             if (request.Attachments?.Count > 0)
@@ -131,7 +131,7 @@ namespace KnowledgeSpace.WebPortal.Services
 
         public async Task<bool> PutKnowlegdeBase(int id, PostKnowledgeBaseVm request)
         {
-            var client = _httpClientFactory.CreateClient();
+            var client = _httpClientFactory.CreateClient("BackendApi");
 
             client.BaseAddress = new Uri(_configuration["BackendApiUrl"]);
             using var requestContent = new MultipartFormDataContent();

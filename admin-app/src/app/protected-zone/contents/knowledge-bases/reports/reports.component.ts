@@ -15,6 +15,7 @@ import { ReportsDetailComponent } from '../reports-detail/reports-detail.compone
 })
 export class ReportsComponent extends BaseComponent implements OnInit, OnDestroy {
   private subscription = new Subscription();
+  public screenTitle: string;
   // Default
   public bsModalRef: BsModalRef;
   public blockedPanel = false;

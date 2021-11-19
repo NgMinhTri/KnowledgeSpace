@@ -11,6 +11,7 @@ export class MonthlyNewMembersComponent extends BaseComponent implements OnInit 
 
  // Default
  public blockedPanel = false;
+ public screenTitle: string;
  // Customer Receivable
  public items: any[];
  public year: number = new Date().getFullYear();

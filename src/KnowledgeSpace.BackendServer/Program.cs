@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
+using System.IO;
 
 namespace KnowledgeSpace.BackendServer
 {
@@ -43,9 +44,13 @@ namespace KnowledgeSpace.BackendServer
                     .ConfigureWebHostDefaults(webBuilder =>
 
                     {
+                        //webBuilder.UseStartup<Startup>();
+                        ////tắt thông tin server trả về trình duyệt
+                        //webBuilder.UseKestrel(c => c.AddServerHeader = false);
+                        //webBuilder.UseIISIntegration();
+                        webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+                        webBuilder.UseIISIntegration();
                         webBuilder.UseStartup<Startup>();
-                        //tắt thông tin server trả về trình duyệt
-                        webBuilder.UseKestrel(c => c.AddServerHeader = false);
                     });
     }
 }
