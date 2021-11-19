@@ -51,6 +51,7 @@ namespace KnowledgeSpace.BackendServer
                 options.Events.RaiseSuccessEvents = true;
             })
            .AddInMemoryApiResources(Config.Apis)
+           .AddInMemoryApiScopes(Config.ApiScopes)
            .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
            .AddInMemoryIdentityResources(Config.Ids)
            .AddAspNetIdentity<User>()
