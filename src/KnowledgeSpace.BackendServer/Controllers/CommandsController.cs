@@ -15,16 +15,19 @@ namespace KnowledgeSpace.BackendServer.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet()]
         public async Task<IActionResult> GetCommands()
         {
-            var command = _context.Commands;
-            var commandVm = await command.Select( c => new CommandVm()
+            var user = User.Identity.Name;
+            var commands = _context.Commands;
+
+            var commandVms = await commands.Select(u => new CommandVm()
             {
-                Id = c.Id,
-                Name = c.Name
+                Id = u.Id,
+                Name = u.Name,
             }).ToListAsync();
-            return Ok(commandVm);
+
+            return Ok(commandVms);
         }
 
     }

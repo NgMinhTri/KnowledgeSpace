@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using FluentValidation.AspNetCore;
 using KnowledgeSpace.BackendServer.Data;
 using KnowledgeSpace.BackendServer.Data.Entities;
+using KnowledgeSpace.BackendServer.Extensions;
 using KnowledgeSpace.BackendServer.IdentityServer;
 using KnowledgeSpace.BackendServer.Services;
+using KnowledgeSpace.ViewModel;
 using KnowledgeSpace.ViewModel.Systems;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +23,7 @@ namespace KnowledgeSpace.BackendServer
 {
     public class Startup
     {
+        private readonly string KspSpecificOrigins = "KspSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,7 +35,7 @@ namespace KnowledgeSpace.BackendServer
         public void ConfigureServices(IServiceCollection services)
         {
             //1. Setup entity framework
-            services.AddDbContext<ApplicationDbContext>(options =>
+            services.AddDbContextPool<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             //2. Setup identity
@@ -47,10 +51,23 @@ namespace KnowledgeSpace.BackendServer
                 options.Events.RaiseSuccessEvents = true;
             })
            .AddInMemoryApiResources(Config.Apis)
-           .AddInMemoryClients(Config.Clients)
+           .AddInMemoryApiScopes(Config.ApiScopes)
+           .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
            .AddInMemoryIdentityResources(Config.Ids)
            .AddAspNetIdentity<User>()
+           .AddProfileService<IdentityProfileService>()
            .AddDeveloperSigningCredential();
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(KspSpecificOrigins,
+                builder =>
+                {
+                    builder.WithOrigins(Configuration["AllowOrigins"])
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -65,6 +82,11 @@ namespace KnowledgeSpace.BackendServer
                 options.Password.RequireDigit = true;
                 options.Password.RequireUppercase = true;
                 options.User.RequireUniqueEmail = true;
+            });
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
             });
 
             services.AddControllers();
@@ -87,6 +109,11 @@ namespace KnowledgeSpace.BackendServer
             services.AddTransient<IEmailSender, EmailSenderService>();
 
             services.AddTransient<ISequenceService, SequenceService>();
+            services.AddTransient<IStorageService, FileStorageService>();
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.AddTransient<IViewRenderService, ViewRenderService>();
+            services.AddTransient<ICacheService, DistributedCacheService>();
+            services.AddTransient<IOneSignalService, OneSignalService>();
 
             services.AddSwaggerGen(c =>
             {
@@ -99,7 +126,7 @@ namespace KnowledgeSpace.BackendServer
                     {
                         Implicit = new OpenApiOAuthFlow
                         {
-                            AuthorizationUrl = new Uri("https://localhost:5000/connect/authorize"),
+                            AuthorizationUrl = new Uri(Configuration["AuthorityUrl"] + "/connect/authorize"),
                             Scopes = new Dictionary<string, string> { { "api.knowledgespace", "KnowledgeSpace API" } }
                         },
                     },
@@ -133,6 +160,15 @@ namespace KnowledgeSpace.BackendServer
                     policy.RequireAuthenticatedUser();
                 });
             });
+
+            services.AddDistributedSqlServerCache(o =>
+            {
+                o.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                o.SchemaName = "dbo";
+                o.TableName = "CacheTable";
+            });
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -142,6 +178,27 @@ namespace KnowledgeSpace.BackendServer
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseHsts(hsts => hsts.MaxAge(365).IncludeSubdomains().Preload());
+                app.UseXContentTypeOptions();
+                app.UseReferrerPolicy(opts => opts.NoReferrer());
+                app.UseXXssProtection(options => options.EnabledWithBlockMode());
+                app.UseXfo(options => options.Deny());
+            }
+            app.UseErrorWrapping();
+
+            
+            //app.UseCsp(opts => opts
+            //        .BlockAllMixedContent()
+            //        .StyleSources(s => s.Self())
+            //        .StyleSources(s => s.UnsafeInline())
+            //        .FontSources(s => s.Self())
+            //        .FormActions(s => s.Self())
+            //        .FrameAncestors(s => s.Self())
+            //        .ImageSources(s => s.Self())
+            //        .ScriptSources(s => s.Self())
+            //    );
 
             app.UseStaticFiles();
 
@@ -154,6 +211,8 @@ namespace KnowledgeSpace.BackendServer
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(KspSpecificOrigins);
 
             app.UseEndpoints(endpoints =>
             {

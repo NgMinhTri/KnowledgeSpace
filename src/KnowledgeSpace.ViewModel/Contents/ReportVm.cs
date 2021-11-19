@@ -13,6 +13,7 @@ namespace KnowledgeSpace.ViewModel.Contents
         public string Content { get; set; }
 
         public string ReportUserId { get; set; }
+        public string ReportUserName { get; set; }
 
         public DateTime CreateDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
