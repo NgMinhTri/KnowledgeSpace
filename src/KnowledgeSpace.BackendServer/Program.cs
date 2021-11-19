@@ -1,10 +1,11 @@
-using KnowledgeSpace.BackendServer.Data;
+﻿using KnowledgeSpace.BackendServer.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System;
+using System.IO;
 
 namespace KnowledgeSpace.BackendServer
 {
@@ -38,10 +39,18 @@ namespace KnowledgeSpace.BackendServer
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                 .UseSerilog()
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                    .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
+                    .ReadFrom.Configuration(hostingContext.Configuration))
+                    .ConfigureWebHostDefaults(webBuilder =>
+
+                    {
+                        //webBuilder.UseStartup<Startup>();
+                        ////tắt thông tin server trả về trình duyệt
+                        //webBuilder.UseKestrel(c => c.AddServerHeader = false);
+                        //webBuilder.UseIISIntegration();
+                        webBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+                        webBuilder.UseIISIntegration();
+                        webBuilder.UseStartup<Startup>();
+                    });
     }
 }

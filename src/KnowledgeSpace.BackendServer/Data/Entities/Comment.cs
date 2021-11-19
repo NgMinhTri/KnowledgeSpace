@@ -22,9 +22,10 @@ namespace KnowledgeSpace.BackendServer.Data.Entities
 
         [MaxLength(50)]
         [Column(TypeName = "varchar(50)")]
-        public string OwnwerUserId { get; set; }
+        public string OwnerUserId { get; set; }
 
         public DateTime CreateDate { get; set; }
         public DateTime? LastModifiedDate { get; set; }
+        public int? ReplyId { get; set; }
     }
 }
