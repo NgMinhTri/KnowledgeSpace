@@ -7,7 +7,11 @@ namespace KnowledgeSpace.BackendServer.Extensions
     {
         public static IApplicationBuilder UseErrorWrapping(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<ErrorWrappingMiddleware>();
+            return builder.UseWhen(context => context.Request.Path.StartsWithSegments("/api"), appBuilder =>
+            {
+                appBuilder.UseMiddleware<ErrorWrappingMiddleware>();
+            });
+            //return builder.UseMiddleware<ErrorWrappingMiddleware>();
         }
     }
 }
