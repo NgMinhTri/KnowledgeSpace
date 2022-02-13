@@ -40,8 +40,8 @@ namespace KnowledgeSpace.BackendServer
                     Configuration.GetConnectionString("DefaultConnection")));
             //2. Setup identity
             services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider);
 
             var builder = services.AddIdentityServer(options =>
             {
